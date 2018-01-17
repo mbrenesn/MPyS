@@ -17,6 +17,7 @@ import time
 np.random.seed(2)
 
 import argparse
+import sys
 
 # Parsing arguments
 parser = argparse.ArgumentParser(description='Calculate the current in the \
@@ -112,7 +113,9 @@ for i in range(sites - 1):
 local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, sites)
 local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, sites)
 print '# Time', 'Current'
+sys.stdout.flush()
 print '0.0', ((local_j1[pos] - local_j2[pos]) / mu).real
+sys.stdout.flush()
 #for i in range(sites):
 #    print '0.0', i+1, local_j1[i].real, local_j2[i].real, t_j1.real, t_j2.real
 #    print '0.0', i+1, t_j1.real, t_j2.real, n2.real
@@ -160,7 +163,9 @@ for i in range(steps):
     #print
 
     print t, ((local_j1[pos] - local_j2[pos]) / mu).real
+    sys.stdout.flush()
 
 time2 = time.time()
 
-print 'Time =', time2 - time1
+print '# Time =', time2 - time1
+sys.stdout.flush()
