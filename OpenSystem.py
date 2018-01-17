@@ -16,19 +16,50 @@ import time
 
 np.random.seed(2)
 
-sites = 4
+import argparse
+
+# Parsing arguments
+parser = argparse.ArgumentParser(description='Calculate the current in the \
+	NESS using MPOs 4th order Trotter')
+
+parser.add_argument('--l', action='store', dest='l', type=int,
+                    help='[INT] Number of sites')
+parser.add_argument('--tau', action='store', dest='tau', type=float,
+                    help='[FLOAT] Hamiltonian parameter')
+parser.add_argument('--delta', action='store', dest='delta', type=float,
+                    help='[FLOAT] Hamiltonian parameter')
+parser.add_argument('--h', action='store', type=float, dest='h',
+                    help='[FLOAT] Impurity strenght in the middle of the chain')
+parser.add_argument('--dt', action='store', type=float, dest='dt',
+                    help='[FLOAT] Timestep for 4th order ST')
+parser.add_argument('--mu', action='store', type=float, dest='mu',
+                    help='[FLOAT] Coupling constant')
+parser.add_argument('--boundary_gamma', action='store', type=float, dest='b_gamma',
+                    default=None, help='[FLOAT] Driving parameter, defaults to None')
+parser.add_argument('--bond_dim', action='store', type=int, dest='bond_dim',
+                    help='[INT] Maximum bond dimension to use')
+
+args = parser.parse_args()
+
+# Hamiltonian arguments
+sites = args.l
+tau = args.tau / 2.0
+delta_val = args.delta
+h = args.h / 2.0
+
 phys_dim = 2
-bond_dim = 100
+bond_dim = args.bond_dim
 epsilon = 1.0E-8
 precision = 1.0E-12
-tau = 0.5
-delta = [0.5 for _ in range(sites)]
+delta = [delta_val for _ in range(sites)]
 h_local = [0.0 for _ in range(sites)]
-b_gamma = 1.0
-mu = 0.01
-dt = 0.1
-max_variational = 3
 pos = sites / 2
+h_local[pos] = h
+b_gamma = args.b_gamma
+mu = args.mu
+dt = args.dt
+max_variational = 3
+steps = int(5.0 * (sites / dt))
 
 time1 = time.time()
 
@@ -78,15 +109,17 @@ for i in range(sites - 1):
 #    print '0.0', i+1, local_z[i].real
 #print
 
-#local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, sites)
-#local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, sites)
+local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, sites)
+local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, sites)
+print '# Time', 'Current'
+print '0.0', ((local_j1[pos] - local_j2[pos]) / mu).real
 #for i in range(sites):
-    #print '0.0', i+1, local_j1[i].real, local_j2[i].real, t_j1.real, t_j2.real
+#    print '0.0', i+1, local_j1[i].real, local_j2[i].real, t_j1.real, t_j2.real
 #    print '0.0', i+1, t_j1.real, t_j2.real, n2.real
 #print
 
 t = 0.0
-for i in range(100):
+for i in range(steps):
     t = t + dt
 
     #mps_b = np.array(mps_struct, copy = True)
