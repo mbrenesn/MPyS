@@ -52,26 +52,22 @@ class XXZEvoMPOBoundDriv:
         ident = np.identity(self.phys_dim)
         ident_2 = np.identity(self.phys_ext_dim)
 
-        h_1 = ( ( -0.5j * self.h_local[0] * np.kron( np.kron(ident, sz), ident_2) ) +
-                (  0.5j * self.h_local[0] * np.kron( np.kron(sz, ident), ident_2) ) )
-        h_n = ( ( -0.5j * self.h_local[self.n - 1] * np.kron( ident_2, np.kron(ident, sz) ) ) +
-                (  0.5j * self.h_local[self.n - 1] * np.kron( ident_2, np.kron(sz, ident) ) ) )
         j = np.sqrt( self.b_gamma * (1 + self.mu) * s_t )
-        l_1 = np.kron( np.kron( j.conjugate(), j )
-                       - 0.5 * (np.kron( ident, j.transpose().dot(j) )
+        l_1 = np.kron( 2.0 * np.kron( j.conjugate(), j )
+                       - (np.kron( ident, j.transpose().dot(j) )
                        + np.kron( (j.transpose().dot(j)).transpose(), ident) ), ident_2)
         j = np.sqrt( self.b_gamma * (1 - self.mu) * s )
-        l_2 = np.kron( np.kron( j.conjugate(), j )
-                       - 0.5 * (np.kron( ident, j.transpose().dot(j) )
+        l_2 = np.kron( 2.0 * np.kron( j.conjugate(), j )
+                       - (np.kron( ident, j.transpose().dot(j) )
                        + np.kron( (j.transpose().dot(j)).transpose(), ident) ), ident_2)
 
         j = np.sqrt( self.b_gamma * (1 + self.mu) * s )
-        ln_1 = np.kron ( ident_2, np.kron( j.conjugate(), j )
-                                  - 0.5 * (np.kron( ident, j.transpose().dot(j) )
+        ln_1 = np.kron ( ident_2, 2.0 * np.kron( j.conjugate(), j )
+                                  - (np.kron( ident, j.transpose().dot(j) )
                                   + np.kron( (j.transpose().dot(j)).transpose(), ident ) ) )
         j = np.sqrt( self.b_gamma * (1 - self.mu) * s_t )
-        ln_2 = np.kron ( ident_2, np.kron( j.conjugate(), j )
-                                  - 0.5 * (np.kron( ident, j.transpose().dot(j) )
+        ln_2 = np.kron ( ident_2, 2.0 * np.kron( j.conjugate(), j )
+                                  - (np.kron( ident, j.transpose().dot(j) )
                                   + np.kron( (j.transpose().dot(j)).transpose(), ident ) ) )
 
         t_ident = np.reshape(ident_2, (1, 1, self.phys_ext_dim, self.phys_ext_dim), order = 'F')
@@ -100,9 +96,9 @@ class XXZEvoMPOBoundDriv:
             w = expm(self.dt * l_h)
 
             if(i == 1):
-                w = expm(self.dt * (l_h + h_1 + l_1 + l_2))
+                w = expm(self.dt * (l_h + l_1 + l_2))
             elif(i == (self.n - 1)):
-                w = expm(self.dt * (l_h + h_n + ln_1 + ln_2))
+                w = expm(self.dt * (l_h + ln_1 + ln_2))
 
             U, V = self.bond_MPO_svd_(w, self.phys_ext_dim)
 
@@ -130,7 +126,7 @@ class XXZEvoMPOBoundDriv:
             w = expm(0.5 * self.dt * l_h)
 
             if(i == (self.n - 1)):
-                w = expm(0.5 * self.dt * (l_h + h_n + ln_1 + ln_2))
+                w = expm(0.5 * self.dt * (l_h + ln_1 + ln_2))
 
             U, V = self.bond_MPO_svd_(w, self.phys_ext_dim)
 
