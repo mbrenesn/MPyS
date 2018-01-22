@@ -44,9 +44,9 @@ args = parser.parse_args()
 
 # Hamiltonian arguments
 sites = args.l
-tau = args.tau / 2.0
+tau = args.tau
 delta_val = args.delta
-h = args.h / 2.0
+h = args.h
 
 phys_dim = 2
 bond_dim = args.bond_dim
