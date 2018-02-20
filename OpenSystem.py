@@ -78,6 +78,15 @@ dt_1 = dt / (4 - (4 ** (1.0 / 3.0)) )
 dt_2 = dt_1
 dt_3 = dt - (2.0 * dt_1) - (2.0 * dt_2)
 
+print '# L =', sites
+print '# tau =', tau
+print '# delta =', delta
+print '# h =', h_local
+print '# mu =', mu
+print '# b_gamma =', b_gamma
+print '# dt =', dt
+print '# chi =', bond_dim
+
 # Liouville ST decomp MPOs
 prec_mpo = 1.0E-14
 eps_mpo = 1.0E-12
