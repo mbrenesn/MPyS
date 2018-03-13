@@ -8,11 +8,12 @@ from MPyS.Utils.ReductionUtils import apply_mpo_variational
 class XXZEvoMPOBoundDriv:
     """ MPO Class for the even/odd separation of propagator   """
     """using the XXZ Hamiltonian for spin 1/2. (4th order ST) """
-    def __init__(self, num_sites, tau, delta, h_local, boundary_gamma, mu, dt, d_max, epsilon, precision):
+    def __init__(self, num_sites, alpha, delta, h_local,
+            boundary_gamma, mu, dt, d_max, epsilon, precision):
         self.n = num_sites
         self.phys_dim = 2
         self.phys_ext_dim = 4
-        self.tau = tau
+        self.alpha = alpha
         self.delta = delta
         self.h_local = h_local
         self.b_gamma = boundary_gamma
@@ -81,18 +82,20 @@ class XXZEvoMPOBoundDriv:
             self.MPO_odd_[i] = t_ident
 
         for i in range(1, self.n, 2):
-            h = self.tau * ( np.kron( np.kron(ident, sx), np.kron(ident, sx) )
-                           + np.kron( np.kron(ident, sy), np.kron(ident, sy) )
-                           + (self.delta[i - 1] * np.kron( np.kron(ident, sz), np.kron(ident,sz) ))
+            h = ( ( self.alpha[i - 1] * ( np.kron( np.kron(ident, sx), np.kron(ident, sx) ) ) )
+                + ( self.alpha[i - 1] * ( np.kron( np.kron(ident, sy), np.kron(ident, sy) ) ) )
+                + ( self.delta[i - 1] * np.kron( np.kron(ident, sz), np.kron(ident,sz) ) )
                 + ( (self.h_local[i - 1] / 2.0) * np.kron( np.kron(ident, sz), ident_2 ) )
                 + ( (self.h_local[i] / 2.0) * np.kron( ident_2, np.kron(ident, sz) ) ) )
 
             l_h = -1.0j * h
 
-            h = self.tau * ( np.kron( np.kron(sx.transpose(), ident), np.kron(sx.transpose(), ident) )
-                           + np.kron( np.kron(sy.transpose(), ident), np.kron(sy.transpose(), ident) )
-                           + (self.delta[i - 1] * np.kron( np.kron(sz.transpose(), ident),
-                                                           np.kron(sz.transpose(), ident) ))
+            h = ( ( self.alpha[i - 1] * ( np.kron( np.kron(sx.transpose(), ident),
+                                          np.kron(sx.transpose(), ident) ) ) )
+                + ( self.alpha[i - 1] * ( np.kron( np.kron(sy.transpose(), ident),
+                                          np.kron(sy.transpose(), ident) ) ) )
+                + ( self.delta[i - 1] * np.kron( np.kron(sz.transpose(), ident),
+                                                np.kron(sz.transpose(), ident) ) )
                 + ( (self.h_local[i - 1] / 2.0) * np.kron( np.kron(sz, ident), ident_2 ) )
                 + ( (self.h_local[i] / 2.0) * np.kron( ident_2, np.kron(sz, ident) ) ) )
 
@@ -111,18 +114,20 @@ class XXZEvoMPOBoundDriv:
             self.MPO_odd_[i] = V
 
         for i in range(2, self.n, 2):
-            h = self.tau * ( np.kron( np.kron(ident, sx), np.kron(ident, sx) )
-                           + np.kron( np.kron(ident, sy), np.kron(ident, sy) )
-                           + (self.delta[i - 1] * np.kron( np.kron(ident, sz), np.kron(ident,sz) ))
+            h = ( ( self.alpha[i - 1] * ( np.kron( np.kron(ident, sx), np.kron(ident, sx) ) ) )
+                + ( self.alpha[i - 1] * ( np.kron( np.kron(ident, sy), np.kron(ident, sy) ) ) )
+                + ( self.delta[i - 1] * np.kron( np.kron(ident, sz), np.kron(ident,sz) ) )
                 + ( (self.h_local[i - 1] / 2.0) * np.kron( np.kron(ident, sz), ident_2 ) )
                 + ( (self.h_local[i] / 2.0) * np.kron( ident_2, np.kron(ident, sz) ) ) )
 
             l_h = -1.0j * h
 
-            h = self.tau * ( np.kron( np.kron(sx.transpose(), ident), np.kron(sx.transpose(), ident) )
-                           + np.kron( np.kron(sy.transpose(), ident), np.kron(sy.transpose(), ident) )
-                           + (self.delta[i - 1] * np.kron( np.kron(sz.transpose(), ident),
-                                                           np.kron(sz.transpose(), ident) ))
+            h = ( ( self.alpha[i - 1] * ( np.kron( np.kron(sx.transpose(), ident),
+                                          np.kron(sx.transpose(), ident) ) ) )
+                + ( self.alpha[i - 1] * ( np.kron( np.kron(sy.transpose(), ident),
+                                          np.kron(sy.transpose(), ident) ) ) )
+                + ( self.delta[i - 1] * np.kron( np.kron(sz.transpose(), ident),
+                                                np.kron(sz.transpose(), ident) ) )
                 + ( (self.h_local[i - 1] / 2.0) * np.kron( np.kron(sz, ident), ident_2 ) )
                 + ( (self.h_local[i] / 2.0) * np.kron( ident_2, np.kron(sz, ident) ) ) )
 
