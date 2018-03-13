@@ -57,20 +57,20 @@ class XXZEvoMPOBoundDriv:
         h_n = ((-0.5j * self.h_local[self.n - 1]) * np.kron( ident_2, np.kron(ident, sz) ) +
               ( 0.5j * self.h_local[self.n - 1]) * np.kron( ident_2, np.kron(sz, ident) ))
 
-        j = np.sqrt( self.b_gamma * (1 + self.mu) * s_t )
+        j = np.sqrt( self.b_gamma * (1 + self.mu) ) * s_t
         l_1 = np.kron( 2.0 * np.kron( j.conjugate(), j )
                        - (np.kron( ident, j.transpose().dot(j) )
                        + np.kron( (j.transpose().dot(j)).transpose(), ident) ), ident_2)
-        j = np.sqrt( self.b_gamma * (1 - self.mu) * s )
+        j = np.sqrt( self.b_gamma * (1 - self.mu) ) * s
         l_2 = np.kron( 2.0 * np.kron( j.conjugate(), j )
                        - (np.kron( ident, j.transpose().dot(j) )
                        + np.kron( (j.transpose().dot(j)).transpose(), ident) ), ident_2)
 
-        j = np.sqrt( self.b_gamma * (1 + self.mu) * s )
+        j = np.sqrt( self.b_gamma * (1 + self.mu) ) * s
         ln_1 = np.kron ( ident_2, 2.0 * np.kron( j.conjugate(), j )
                                   - (np.kron( ident, j.transpose().dot(j) )
                                   + np.kron( (j.transpose().dot(j)).transpose(), ident ) ) )
-        j = np.sqrt( self.b_gamma * (1 - self.mu) * s_t )
+        j = np.sqrt( self.b_gamma * (1 - self.mu) ) * s_t
         ln_2 = np.kron ( ident_2, 2.0 * np.kron( j.conjugate(), j )
                                   - (np.kron( ident, j.transpose().dot(j) )
                                   + np.kron( (j.transpose().dot(j)).transpose(), ident ) ) )
