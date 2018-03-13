@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description='Calculate the current in the \
 
 parser.add_argument('--l', action='store', dest='l', type=int,
                     help='[INT] Number of sites')
-parser.add_argument('--tau', action='store', dest='tau', type=float,
+parser.add_argument('--alpha', action='store', dest='alpha', type=float,
                     help='[FLOAT] Hamiltonian parameter')
 parser.add_argument('--delta', action='store', dest='delta', type=float,
                     help='[FLOAT] Hamiltonian parameter')
@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 # Hamiltonian arguments
 sites = args.l
-tau = args.tau
+alpha = args.alpha
 delta_val = args.delta
 h = args.h
 
@@ -52,6 +52,7 @@ phys_dim = 2
 bond_dim = args.bond_dim
 epsilon = 1.0E-8
 precision = 1.0E-12
+#alpha = [alpha_val for _ in range(sites)]
 delta = [delta_val for _ in range(sites)]
 h_local = [0.0 for _ in range(sites)]
 pos = sites / 2
@@ -79,7 +80,7 @@ dt_2 = dt_1
 dt_3 = dt - (2.0 * dt_1) - (2.0 * dt_2)
 
 print '# L =', sites
-print '# tau =', tau
+print '# alpha =', alpha
 print '# delta =', delta
 print '# h =', h_local
 print '# mu =', mu
@@ -90,8 +91,10 @@ print '# chi =', bond_dim
 # Liouville ST decomp MPOs
 prec_mpo = 1.0E-14
 eps_mpo = 1.0E-12
-EvoMPO_t1 = XXZEvoMPOBoundDriv(sites, tau, delta, h_local, b_gamma, mu, dt_1, bond_dim, eps_mpo, prec_mpo)
-EvoMPO_t3 = XXZEvoMPOBoundDriv(sites, tau, delta, h_local, b_gamma, mu, dt_3, bond_dim, eps_mpo, prec_mpo)
+EvoMPO_t1 = XXZEvoMPOBoundDriv(sites, alpha, delta, h_local,
+        b_gamma, mu, dt_1, bond_dim, eps_mpo, prec_mpo)
+EvoMPO_t3 = XXZEvoMPOBoundDriv(sites, alpha, delta, h_local,
+        b_gamma, mu, dt_3, bond_dim, eps_mpo, prec_mpo)
 
 # Observables
 sx = np.array([[0.0, 1.0], [1.0, 0.0]])
@@ -101,34 +104,88 @@ ident = np.identity(phys_dim)
 ident_2 = np.identity(phys_dim ** 2)
 
 # Spin magnetization in z direction
-oset = [[ident_2 for _ in range(sites)] for _ in range(sites)]
-for i in range(sites):
-    oset[i][i] = np.kron(ident, sz)
+#oset = [[ident_2 for _ in range(sites)] for _ in range(sites)]
+#for i in range(sites):
+#    oset[i][i] = np.kron(ident, sz)
 
 # Current
-jset_1 = [[ident_2 for _ in range(sites)] for _ in range(sites)]
-jset_2 = [[ident_2 for _ in range(sites)] for _ in range(sites)]
-for i in range(sites - 1):
-    jset_1[i][i] = np.kron(ident, sx)
-    jset_1[i][i + 1] = np.kron(ident, sy)
-    jset_2[i][i] = np.kron(ident, sy)
-    jset_2[i][i + 1] = np.kron(ident, sx)
+#jset_1 = [[ident_2 for _ in range(sites)] for _ in range(sites)]
+#jset_2 = [[ident_2 for _ in range(sites)] for _ in range(sites)]
+#for i in range(sites - 1):
+#    jset_1[i][i] = np.kron(ident, sx)
+#    jset_1[i][i + 1] = np.kron(ident, sy)
+#    jset_2[i][i] = np.kron(ident, sy)
+#    jset_2[i][i + 1] = np.kron(ident, sx)
 
+# Spin
+jset_1 = [ident_2 for _ in range(sites)]
+jset_2 = [ident_2 for _ in range(sites)]
+jset_1[pos] = np.kron(ident, sx)
+jset_1[pos + 1] = np.kron(ident, sy)
+jset_2[pos] = np.kron(ident, sy)
+jset_2[pos + 1] = np.kron(ident, sx)
+
+# Local energy current
+#eset_1 = [ident_2 for _ in range(sites)]
+#eset_2 = [ident_2 for _ in range(sites)]
+#eset_3 = [ident_2 for _ in range(sites)]
+#eset_4 = [ident_2 for _ in range(sites)]
+#eset_5 = [ident_2 for _ in range(sites)]
+#eset_6 = [ident_2 for _ in range(sites)]
+#
+#eset_1[pos - 1] = np.kron(ident, sy)
+#eset_1[pos]     = np.kron(ident, sz)
+#eset_1[pos + 1] = np.kron(ident, sx)
+#
+#eset_2[pos - 1] = np.kron(ident, sx)
+#eset_2[pos]     = np.kron(ident, sz)
+#eset_2[pos + 1] = np.kron(ident, sy)
+#
+#eset_3[pos - 1] = delta_val * np.kron(ident, sz)
+#eset_3[pos]     = np.kron(ident, sx)
+#eset_3[pos + 1] = np.kron(ident, sy)
+#
+#eset_4[pos - 1] = delta_val * np.kron(ident, sy)
+#eset_4[pos]     = np.kron(ident, sx)
+#eset_4[pos + 1] = np.kron(ident, sz)
+#
+#eset_5[pos - 1] = delta_val * np.kron(ident, sx)
+#eset_5[pos]     = np.kron(ident, sy)
+#eset_5[pos + 1] = np.kron(ident, sz)
+#
+#eset_6[pos - 1] = delta_val * np.kron(ident, sz)
+#eset_6[pos]     = np.kron(ident, sy)
+#eset_6[pos + 1] = np.kron(ident, sx)
+
+# Initial expectation values
+
+# Spin
 #local_z, eva_z, norm_z = expectation_value_trace(i_state, oset, sites, sites)
 #for i in range(sites):
 #    print '0.0', i+1, local_z[i].real
 #print
 
-local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, sites)
-local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, sites)
+# Spin Current
+local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, 1)
+local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, 1)
 print '# Time', 'Current'
 sys.stdout.flush()
-print '0.0', ((local_j1[pos] - local_j2[pos]) / mu).real
+print '0.0', ((local_j1[0] - local_j2[0]) / mu).real
 sys.stdout.flush()
-#for i in range(sites):
-#    print '0.0', i+1, local_j1[i].real, local_j2[i].real, t_j1.real, t_j2.real
-#    print '0.0', i+1, t_j1.real, t_j2.real, n2.real
-#print
+
+# Energy current
+#local_e1, t_e1, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+#local_e2, t_e2, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+#local_e3, t_e3, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+#local_e4, t_e4, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+#local_e5, t_e5, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+#local_e6, t_e6, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+#
+#print '# Time', 'Spin Current', 'Local Energy Current'
+#sys.stdout.flush()
+#print '0.0', ((local_j1[0] - local_j2[0]) / mu).real, ( ((local_e1[0] - local_e2[0])
+#    + (local_e3[0] - local_e4[0]) + (local_e5[0] - local_e6[0]) ) / mu).real
+#sys.stdout.flush()
 
 t = 0.0
 for i in range(steps):
@@ -164,14 +221,22 @@ for i in range(steps):
     #    print t, i+1, local_z[i].real
     #print
 
-    local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, sites)
-    local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, sites)
+    local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, 1)
+    local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, 1)
     #for i in range(sites):
     #    print t, i+1, local_j1[i].real, local_j2[i].real, t_j1.real, t_j2.real, n1.real, n2.real
         #print t, i+1, t_j1.real, t_j2.real, n2.real
     #print
+    #local_e1, t_e1, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+    #local_e2, t_e2, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+    #local_e3, t_e3, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+    #local_e4, t_e4, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+    #local_e5, t_e5, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
+    #local_e6, t_e6, m1 = expectation_value_trace(i_state, eset_1, sites, 1)
 
-    print t, ((local_j1[pos] - local_j2[pos]) / mu).real
+    print t, ((local_j1[0] - local_j2[0]) / mu).real
+    #print t, ((local_j1[0] - local_j2[0]) / mu).real, ( ((local_e1[0] - local_e2[0])
+    #    + (local_e3[0] - local_e4[0]) + (local_e5[0] - local_e6[0]) ) / mu).real
     sys.stdout.flush()
 
 time2 = time.time()
