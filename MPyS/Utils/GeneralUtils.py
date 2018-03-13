@@ -7,8 +7,9 @@ import sys
 def svd(t):
     try:
         U, S, V = np.linalg.svd(t, full_matrices = False)
-    except LinAlgError:
-        U, S, V = np.linalg.svd(t + (1.0E-13 * np.random.randn(t.size)), full_matrices = False)
+    except np.linalg.linalg.LinAlgError:
+        print "# Convergence problems occured in SVD!"
+        U, S, V = np.linalg.svd(t + (1.0E-15 * np.random.randn(*t.shape)), full_matrices = False)
 
     return U, S, V
 
