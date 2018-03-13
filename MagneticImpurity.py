@@ -52,8 +52,7 @@ phys_dim = 2
 bond_dim = args.bond_dim
 epsilon = 1.0E-8
 precision = 1.0E-12
-#alpha = [alpha_val for _ in range(sites)]
-alpha = [0.55, 0.65, 0.75, 0.85, 0.95]
+alpha = [alpha_val for _ in range(sites)]
 delta = [delta_val for _ in range(sites)]
 h_local = [0.0 for _ in range(sites)]
 pos = sites / 2
@@ -62,7 +61,7 @@ b_gamma = args.b_gamma
 mu = args.mu
 dt = args.dt
 max_variational = 3
-steps = int(5.0 * (sites / dt))
+steps = int(10.0 * (sites / dt))
 
 time1 = time.time()
 
