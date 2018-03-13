@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 # Hamiltonian arguments
 sites = args.l
-alpha = args.alpha
+alpha_val = args.alpha
 delta_val = args.delta
 h = args.h
 
@@ -53,6 +53,7 @@ bond_dim = args.bond_dim
 epsilon = 1.0E-8
 precision = 1.0E-12
 #alpha = [alpha_val for _ in range(sites)]
+alpha = [0.55, 0.65, 0.75, 0.85, 0.95]
 delta = [delta_val for _ in range(sites)]
 h_local = [0.0 for _ in range(sites)]
 pos = sites / 2
@@ -120,9 +121,9 @@ ident_2 = np.identity(phys_dim ** 2)
 # Spin
 jset_1 = [ident_2 for _ in range(sites)]
 jset_2 = [ident_2 for _ in range(sites)]
-jset_1[pos] = np.kron(ident, sx)
+jset_1[pos] = alpha[pos] * np.kron(ident, sx)
 jset_1[pos + 1] = np.kron(ident, sy)
-jset_2[pos] = np.kron(ident, sy)
+jset_2[pos] = alpha[pos] * np.kron(ident, sy)
 jset_2[pos + 1] = np.kron(ident, sx)
 
 # Local energy current
