@@ -55,13 +55,13 @@ precision = 1.0E-12
 alpha = [alpha_val for _ in range(sites)]
 delta = [delta_val for _ in range(sites)]
 h_local = [0.0 for _ in range(sites)]
-pos = sites / 2
+pos = (sites / 2) - 1
 h_local[pos] = h
 b_gamma = args.b_gamma
 mu = args.mu
 dt = args.dt
 max_variational = 3
-steps = int(10.0 * (sites / dt))
+steps = int(5.0 * (sites / dt))
 
 time1 = time.time()
 

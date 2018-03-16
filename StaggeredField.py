@@ -56,13 +56,13 @@ pos = sites / 2
 alpha = [alpha_val for _ in range(sites)]
 delta = [delta_val for _ in range(sites)]
 h_local = [0.0 for _ in range(sites)]
-for i in range(1, sites, 2):
+for i in range(0, sites, 2):
     h_local[i] = -1.0 * h
 b_gamma = args.b_gamma
 mu = args.mu
 dt = args.dt
 max_variational = 3
-steps = int(10.0 * (sites / dt))
+steps = int(5.0 * (sites / dt))
 
 time1 = time.time()
 
