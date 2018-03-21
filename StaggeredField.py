@@ -88,10 +88,12 @@ print '# mu =', mu
 print '# b_gamma =', b_gamma
 print '# dt =', dt
 print '# chi =', bond_dim
+sys.stdout.flush()
 
 name = ('magnetisation_' + 'l' + str(sites) + '_delta' + str(delta_val)
         + '_h' + str(h) + '_mu' + str(mu) + '.dat')
-f1 = open('%s' % name, 'w+')
+bufsize = 1
+f1 = open('%s' % name, 'w+', bufsize)
 print >> f1, '# L =', sites
 print >> f1, '# alpha =', alpha
 print >> f1, '# delta =', delta
@@ -142,6 +144,7 @@ local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, 1)
 local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, 1)
 print '# Time', 'Current'
 print '0.0', ((local_j1[0] - local_j2[0]) / mu).real
+sys.stdout.flush()
 
 t = 0.0
 for i in range(steps):
@@ -182,7 +185,9 @@ for i in range(steps):
     local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, 1)
 
     print t, ((local_j1[0] - local_j2[0]) / mu).real
+    sys.stdout.flush()
 
 time2 = time.time()
 print '# Time =', time2 - time1
+sys.stdout.flush()
 f1.close()
