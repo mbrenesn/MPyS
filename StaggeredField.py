@@ -175,7 +175,7 @@ for i in range(steps):
     i_state, k = apply_mpo_variational(i_state, mps_svd, EvoMPO_t1.MPO, sites,
             precision, max_variational)
 
-    if(i % 100 == 0):
+    if((i + 1) % 100 == 0):
         local_z, eva_z, norm_z = expectation_value_trace(i_state, oset, sites, sites)
         for i in range(sites):
             print >> f1, t, i+1, local_z[i].real / mu
