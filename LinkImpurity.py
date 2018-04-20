@@ -36,7 +36,7 @@ parser.add_argument('--delta_ql', action='store', dest='delta_ql', type=float,
 parser.add_argument('--h', action='store', type=float, dest='h',
                     help='[FLOAT] Impurity strenght in the middle of the chain')
 parser.add_argument('--doping', action='store', type=float, dest='dop',
-                    help='[INT] Number of impurities')
+                    help='[FLOAT] Fraction of impurities')
 parser.add_argument('--dt', action='store', type=float, dest='dt',
                     help='[FLOAT] Timestep for 4th order ST')
 parser.add_argument('--mu', action='store', type=float, dest='mu',
@@ -53,7 +53,7 @@ sites = args.l
 alpha_val = args.alpha
 delta_val = args.delta
 h = args.h
-dop = args.dop * sites
+dop = int(args.dop * sites)
 
 phys_dim = 2
 bond_dim = args.bond_dim
@@ -68,7 +68,9 @@ delta[sites / 2] = args.delta_ql
 delta[(sites / 2) - 1] = args.delta_ql
 h_local = [0.0 for _ in range(sites)]
 
-
+start = (sites - (2 * dop)) / 2
+for i in range(dop):
+    h_local[(2 * i) + start] = -1.0 * h
 
 b_gamma = args.b_gamma
 mu = args.mu
