@@ -20,7 +20,7 @@ import argparse
 import sys
 import os.path
 
-abort_time = 10.0
+abort_time = 60.0
 init_time = time.time()
 
 # Parsing arguments
@@ -96,7 +96,6 @@ dt_1 = dt / (4 - (4 ** (1.0 / 3.0)) )
 dt_2 = dt_1
 dt_3 = dt - (2.0 * dt_1) - (2.0 * dt_2)
 
-
 global_name = ('l' + str(sites) + '_ratio' + str(ratio)
     + '_h' + str(h) + '_mu' + str(mu) + '_dop' + str(args.dop))
 mpo_r = os.path.isfile(os.path.join('restart', 'mpo_' + global_name + '.npy'))
@@ -122,7 +121,7 @@ if not restart:
 
 name = 'link_magnetisation_' + global_name + '.dat'
 bufsize = 1
-f1 = open('%s' % name, 'w+', bufsize)
+f1 = open('%s' % name, 'a+', bufsize)
 
 if not restart:
     print >> f1, '# L =', sites
