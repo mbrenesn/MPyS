@@ -18,6 +18,10 @@ np.random.seed(2)
 
 import argparse
 import sys
+import os.path
+
+abort_time = 10.0
+init_time = time.time()
 
 # Parsing arguments
 parser = argparse.ArgumentParser(description='Calculate the current in the \
@@ -76,7 +80,7 @@ b_gamma = args.b_gamma
 mu = args.mu
 dt = args.dt
 max_variational = 3
-steps = int(5.0 * (sites / dt))
+steps = int(10.0 * (sites / dt))
 
 ratio = (args.alpha_ql / args.alpha)
 
@@ -87,38 +91,49 @@ IMps = InitialMPS(sites)
 
 i_state = IMps.identity_state(phys_dim)
 
-# Variational MPS state
-#mps_struct = IMps.random_state(bond_dim, i_state[0].shape[2])
-#mps_struct = prepare(mps_struct, sites)
-
 # ST decomp times
 dt_1 = dt / (4 - (4 ** (1.0 / 3.0)) )
 dt_2 = dt_1
 dt_3 = dt - (2.0 * dt_1) - (2.0 * dt_2)
 
-print '# L =', sites
-print '# alpha =', alpha
-print '# delta =', delta
-print '# h =', h_local
-print '# mu =', mu
-print '# b_gamma =', b_gamma
-print '# dt =', dt
-print '# chi =', bond_dim
-sys.stdout.flush()
 
-name = ('link_magnetisation_' + 'l' + str(sites) + '_ratio' + str(ratio)
-        + '_h' + str(h) + '_mu' + str(mu) + '.dat')
+global_name = ('l' + str(sites) + '_ratio' + str(ratio)
+    + '_h' + str(h) + '_mu' + str(mu) + '_dop' + str(args.dop))
+mpo_r = os.path.isfile(os.path.join('restart', 'mpo_' + global_name + '.npy'))
+time_r = os.path.isfile(os.path.join('restart', 'time_' + global_name + '.dat'))
+if mpo_r and time_r:
+    restart = True
+elif not mpo_r and not time_r:
+    restart = False
+else:
+    print 'Error with restart files'
+    sys.exit(0)
+
+if not restart:
+    print '# L =', sites
+    print '# alpha =', alpha
+    print '# delta =', delta
+    print '# h =', h_local
+    print '# mu =', mu
+    print '# b_gamma =', b_gamma
+    print '# dt =', dt
+    print '# chi =', bond_dim
+    sys.stdout.flush()
+
+name = 'link_magnetisation_' + global_name + '.dat'
 bufsize = 1
 f1 = open('%s' % name, 'w+', bufsize)
-print >> f1, '# L =', sites
-print >> f1, '# alpha =', alpha
-print >> f1, '# delta =', delta
-print >> f1, '# h =', h_local
-print >> f1, '# mu =', mu
-print >> f1, '# b_gamma =', b_gamma
-print >> f1, '# dt =', dt
-print >> f1, '# chi =', bond_dim
-sys.stdout.flush()
+
+if not restart:
+    print >> f1, '# L =', sites
+    print >> f1, '# alpha =', alpha
+    print >> f1, '# delta =', delta
+    print >> f1, '# h =', h_local
+    print >> f1, '# mu =', mu
+    print >> f1, '# b_gamma =', b_gamma
+    print >> f1, '# dt =', dt
+    print >> f1, '# chi =', bond_dim
+    sys.stdout.flush()
 
 # Liouville ST decomp MPOs
 prec_mpo = 1.0E-14
@@ -152,25 +167,40 @@ for i in range(sites - 1):
 # Initial expectation values
 
 # Spin
-local_z, eva_z, norm_z = expectation_value_trace(i_state, oset, sites, sites)
-print >> f1, '# Time', 'Site', 'Magnetisation / mu'
-for i in range(sites):
-    print >> f1, '0.0', i+1, local_z[i].real / mu
-print >> f1, ''
-sys.stdout.flush()
+if not restart:
+    local_z, eva_z, norm_z = expectation_value_trace(i_state, oset, sites, sites)
+    print >> f1, '# Time', 'Site', 'Magnetisation / mu'
+    for i in range(sites):
+        print >> f1, '0.0', i+1, local_z[i].real / mu
+    print >> f1, ''
+    sys.stdout.flush()
 
-# Spin Current
-local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, sites - 1)
-local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, sites - 1)
-print '# Time', 'Site', 'Current / mu'
-for i in range(sites - 1):
-    print '0.0', i+1, ((local_j1[i] - local_j2[i]) / mu).real
-print ''
-sys.stdout.flush()
+    # Spin Current
+    local_j1, t_j1, n1 = expectation_value_trace(i_state, jset_1, sites, sites - 1)
+    local_j2, t_j2, n2 = expectation_value_trace(i_state, jset_2, sites, sites - 1)
+    print '# Time', 'Site', 'Current / mu'
+    for i in range(sites - 1):
+        print '0.0', i+1, ((local_j1[i] - local_j2[i]) / mu).real
+    print ''
+    sys.stdout.flush()
 
 t = 0.0
+if os.path.isfile(os.path.join('restart', 'time_' + global_name + '.dat')):
+    time_file = open(os.path.join('restart', 'time_' + global_name + '.dat'), 'r')
+    t = float(time_file.read())
+if os.path.isfile(os.path.join('restart', 'mpo_' + global_name + '.npy')):
+    i_state = np.load('restart/' + 'mpo_' + global_name + '.npy')
 for i in range(steps):
     t = t + dt
+
+    actual_time = time.time()
+
+    if(actual_time - init_time > abort_time):
+        f_time = open(os.path.join('restart', 'time_' + global_name + '.dat'), 'w')
+        print >> f_time, t - dt
+
+        np.save('restart/' + 'mpo_' + global_name, i_state)
+        sys.exit(0)
 
     #mps_b = np.array(mps_struct, copy = True)
     mps_svd = apply_mpo_svd(EvoMPO_t1.MPO, i_state, sites, bond_dim, epsilon)
