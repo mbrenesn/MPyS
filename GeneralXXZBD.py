@@ -89,7 +89,8 @@ time1 = time.time()
 # Initial state
 IMps = InitialMPS(sites)
 
-i_state = IMps.identity_state(phys_dim)
+#i_state = IMps.identity_state(phys_dim)
+i_state = IMps.ramp_state(phys_dim, mu)
 
 # ST decomp times
 dt_1 = dt / (4 - (4 ** (1.0 / 3.0)) )

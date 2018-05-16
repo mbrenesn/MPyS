@@ -57,3 +57,54 @@ class InitialMPS:
 
         return state
 
+    def ramp_state(self, phys_dim, mu):
+        phys_ext_dim = phys_dim ** 2
+        state = [0 for _ in range(self.n)]
+        mu = mu / 2.0
+        for i in range(1, self.n + 1):
+            val = ( ((-2.0 * mu) * (i - 1)) / (self.n - 1) ) + mu
+            stl = np.zeros((2, 2))
+            stl[0, 0] = 0.5 + val
+            stl[1, 1] = 0.5 - val
+            stl = np.reshape(stl, (phys_ext_dim, 1))
+            stl = np.reshape(stl, (1, 1, phys_ext_dim))
+            state[i - 1] = stl
+
+        return state
+"""
+    def partial_ramp_state(self, phys_dim, mu, dop):
+        phys_ext_dim = phys_dim ** 2
+        state = [0 for _ in range(self.n)]
+        mu = mu / 2.0
+        val = mu / 2.0
+        st_p = np.array([[(0.5 + val), 0.0], [0.0, (0.5 - val)]])
+        st_m = np.array([[(0.5 - val), 0.0], [0.0, (0.5 + val)]])
+        st_p = np.reshape(st_p, (phys_ext_dim, 1))
+        st_m = np.reshape(st_m, (phys_ext_dim, 1))
+        st_p = np.reshape(st_p, (1, 1, phys_ext_dim))
+        st_m = np.reshape(st_m, (1, 1, phys_ext_dim))
+        init = 2 * dop
+        final_half = init + dop
+        final = init + (2 * dop)
+        for i in range(init - 1):
+            state[i] = st_p
+        val = (mu / 2.0)
+        for i in range(init - 1, final_half - 1):
+            val = val - ( (mu / 4.0) / dop )
+            stl_p = np.zeros((2, 2))
+            stl_m = np.zeros((2, 2))
+            stl_p[0, 0] = 0.5 + val
+            stl_p[1, 1] = 0.5 - val
+            stl_m[0, 0] = 0.5 - val
+            stl_m[1, 1] = 0.5 + val
+            stl_p = np.reshape(stl_p, (phys_ext_dim, 1))
+            stl_m = np.reshape(stl_m, (phys_ext_dim, 1))
+            stl_p = np.reshape(stl_p, (1, 1, phys_ext_dim))
+            stl_m = np.reshape(stl_m, (1, 1, phys_ext_dim))
+            state[i] = stl_p
+            state[self.n - i - 1] = stl_m
+        for i in range(final - 1, self.n):
+            state[i] = st_m
+
+        return state
+"""
